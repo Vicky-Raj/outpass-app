@@ -1,7 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  checkAndRedirect()async{
+    var prefs = await SharedPreferences.getInstance();
+    if(!(prefs.getString('token') == null)){
+      Navigator.of(context).pushReplacementNamed('/home/${prefs.getString('role')}');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkAndRedirect();
+  }
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -22,7 +41,7 @@ class HomePage extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(top: 20.0),
             child: Text(
-              'Welcome to skct outpass',
+              'Welcome to SKCT outpass',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 30.0,
@@ -86,4 +105,4 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-}
+  }

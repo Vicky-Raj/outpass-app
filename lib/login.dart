@@ -60,6 +60,7 @@ getAndSetToken(String email, String pass){
     if(response.statusCode == 200){
       var prefs = await SharedPreferences.getInstance();
       await prefs.setString('token',jsonDecode(response.body)['token']);
+      await prefs.setString('role', role);
       setState(() {
        isLoading =false;
        Navigator.of(context).pop();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:outpass_app/main.dart';
 import 'outpass_form.dart';
+import 'package:outpass_app/homepage.dart';
 import 'dart:convert';
 import 'student_outpass.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +16,7 @@ class _StudentHomeState extends State<StudentHome> {
   var outpass;
   bool isLoaded = false;
 
-  showCancel(var pk) {
+  showCancel(String pk) {
     var cancelDialog = AlertDialog(
       title: Text('Cancel Request'),
       content: Text('Are you sure you want to cancel ?'),
@@ -35,7 +36,7 @@ class _StudentHomeState extends State<StudentHome> {
                     headers: {
                       'Authorization': "Token ${prefs.getString('token')}"
                     },
-                    body: jsonEncode({'pk': pk}))
+                    body: jsonEncode({'pk': pk,'task':'delete'}))
                 .then((response){
               if (response.statusCode == 200) {
                 setState(() {
@@ -62,13 +63,50 @@ class _StudentHomeState extends State<StudentHome> {
         });
   }
 
+  showLogout(){
+    var logoutDialog =AlertDialog(
+      title: Text('Logout'),
+      content: Text('Are you sure you want to logout?'),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('Yes'),
+          onPressed: ()async{
+            Navigator.of(context).pop();
+            var prefs = await SharedPreferences.getInstance();
+            await prefs.remove('token');
+            await prefs.remove('role');
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (BuildContext context)=>HomePage()
+              )
+            );
+          },
+        ),
+        FlatButton(
+          child: Text('No'),
+          onPressed: (){
+            Navigator.of(context).pop();
+          },
+        )
+      ],
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context){
+        return logoutDialog;
+      }
+    );
+  }
+
   _getOutpass() {
     SharedPreferences.getInstance().then((prefs) {
       http.get(
           Uri(scheme: 'http', host: host, port: port, path: studentOutpass),
           headers: {
             'Authorization': "Token ${prefs.getString('token')}"
-          }).then((response) {
+          },
+          ).then((response) {
         if (response.statusCode == 200) {
           setState(() {
             outpass = jsonDecode(response.body)['outpass'];
@@ -78,6 +116,23 @@ class _StudentHomeState extends State<StudentHome> {
       });
     });
   }
+
+  getOtp(String pk){
+    SharedPreferences.getInstance().then((prefs){
+      http.put(
+        Uri(scheme:'http',host: host,port: port,path: studentOutpass),
+        headers: {'Authorization': "Token ${prefs.getString('token')}"},
+        body: jsonEncode({'pk':pk,'task':'otp'})
+      ).then((response){
+        if(response.statusCode == 200){
+          setState(() {
+           isLoaded = false;
+           _getOutpass(); 
+          });
+        }
+      });
+    });
+}
 
   @override
   void initState() {
@@ -98,7 +153,7 @@ class _StudentHomeState extends State<StudentHome> {
         child:isLoaded?
         ListView(
           children: <Widget>[
-            outpass == '' ? Container() : getOutpassCard(outpass, showCancel)
+            outpass == '' ? Container() : getOutpassCard(outpass, showCancel,getOtp)
           ],
         ):ListView(
           children: <Widget>[
@@ -127,6 +182,13 @@ class _StudentHomeState extends State<StudentHome> {
               accountEmail: Text("test@rmail.com"),
               accountName: Text("sethu"),
             ),
+            ListTile(
+              title: Text('Logout'),
+              leading: Icon(Icons.exit_to_app),
+              onTap: (){
+                showLogout();
+              },
+            )
           ],
         ),
       ),
@@ -134,9 +196,15 @@ class _StudentHomeState extends State<StudentHome> {
           ? FloatingActionButton(
               child: Icon(Icons.add),
               backgroundColor: Colors.deepPurpleAccent,
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>OutpassForm()))
-;              },
+              onPressed: ()async{
+                var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context)=>OutpassForm()));
+                if(result ?? false){
+                  setState(() {
+                    isLoaded =false;
+                    _getOutpass();
+                  });
+                }
+              },
             )
           : null,
     );
