@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:outpass_app/log.dart';
 import 'package:outpass_app/homepage.dart';
 import 'package:outpass_app/main.dart';
 import 'warden_outpass.dart';
@@ -164,7 +165,20 @@ Future<Null> _refresh()async{
               ),
             ),
             ListTile(
-              title: Text('Logout'),
+              title: Text('HOME'),
+              leading: Icon(Icons.home),
+              onTap: (){},
+              selected: true,
+            ),
+            ListTile(
+              title: Text('LOGS'),
+              leading: Icon(Icons.insert_drive_file),
+              onTap: (){
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>LogView(true)));
+              },
+            ),
+            ListTile(
+              title: Text('LOGOUT'),
               leading: Icon(Icons.exit_to_app),
               onTap: (){
                 showLogout();

@@ -136,13 +136,13 @@ getAndSetToken(String email, String pass){
               Container(
                 margin: EdgeInsets.only(left: 30.0, right: 30.0, top: 20.0),
                 child: TextFormField(
+                  keyboardType: TextInputType.emailAddress,
                   controller: _passwordController,
                   obscureText: true,
                   validator: (String value) {
                     if (value.isEmpty) 
                     return 'Enter your password';
                   },
-                  keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15.0)),

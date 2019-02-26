@@ -1,90 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:outpass_app/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'security_home.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:outpass_app/main.dart';
-import 'security_outpass.dart';
-import 'intime.dart';
+import 'security_record.dart';
 
-class SecurityHome extends StatefulWidget {
+class SecurityInTime extends StatefulWidget {
   @override
-  _SecurityHomeState createState() => _SecurityHomeState();
+  _SecurityInTimeState createState() => _SecurityInTimeState();
 }
 
-class _SecurityHomeState extends State<SecurityHome> {
+class _SecurityInTimeState extends State<SecurityInTime> {
 
   var _formKey = GlobalKey<FormState>();
-  var _otpController = TextEditingController();
+  var _recordController = TextEditingController();
   var duration =Duration(seconds: 5);
   var first = true;
   bool isLoaded = true;
-  Map<dynamic,dynamic> outpass = {};
+  Map<dynamic,dynamic> record = {};
 
-
-  accept(){
-    SharedPreferences.getInstance().then((prefs){
-    http.put(
-      Uri(scheme: 'http',host: host,port: port,path: securityOutpass),
-      headers: {'Authorization': "Token ${prefs.getString('token')}"},
-      body: jsonEncode({'otp':_otpController.text,'task':'accept'}) 
-    ).then((response){
-      if(response.statusCode == 200){
-        _refresh();
-      }
-    });
-  });
-  }
-
-  reject(){
-    var rejectDialog =AlertDialog(
-      title: Text('Reject'),
-      content: Text('Are you sure you want to reject?'),
-      actions: <Widget>[
-        FlatButton(
-          child: Text('Yes'),
-          onPressed: (){
-          Navigator.of(context).pop();
-          SharedPreferences.getInstance().then((prefs){
-          http.put(
-          Uri(scheme: 'http',host: host,port: port,path: securityOutpass),
-          headers: {'Authorization': "Token ${prefs.getString('token')}"},
-          body: jsonEncode({'otp':_otpController.text,'task':'reject'}) 
-          ).then((response){
-            if(response.statusCode == 200){
-              _refresh();
-            }
-          });
-        });
-        },
-        ),
-        FlatButton(
-          child: Text('No'),
-          onPressed: (){Navigator.of(context).pop();},
-        )
-      ],
-    );
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context){
-        return rejectDialog;
-      }
-    );
-  }
  
-_getOutpass(String otp){
+_getRecord(String alias){
 SharedPreferences.getInstance().then((prefs){
 http.post(
-    Uri(scheme:'http',host:host,port: port,path: securityOutpass),
+    Uri(scheme:'http',host:host,port: port,path: securityRecord),
     headers: {'Authorization': "Token ${prefs.getString('token')}"},
-    body: {'otp':otp}).then((response){
+    body: {'alias':alias}).then((response){
       setState(() {
        isLoaded = true; 
       });
       if(response.statusCode == 200){
         setState(() {
-         outpass =jsonDecode(response.body)['outpass']; 
+         record =jsonDecode(response.body)['record']; 
         });
       }
   });
@@ -126,11 +75,24 @@ showLogout(){
     }
   );
 }
+  recordTime(){
+    SharedPreferences.getInstance().then((prefs){
+    http.put(
+      Uri(scheme: 'http',host: host,port: port,path: securityRecord),
+      headers: {'Authorization': "Token ${prefs.getString('token')}"},
+      body: jsonEncode({'alias':_recordController.text}) 
+    ).then((response){
+      if(response.statusCode == 200){
+        _refresh();
+      }
+    });
+  });
+  }
 
 Future<Null> _refresh()async{
   await Future.delayed(Duration(milliseconds: 100));
   setState(() {
-    _otpController.text = '';
+    _recordController.text = '';
     first =true;
   });
   return null;
@@ -153,17 +115,17 @@ Future<Null> _refresh()async{
             ListTile(
             leading: Icon(Icons.home),
             title: Text('Home'),
-            onTap: (){},
-            selected: true,
+            onTap: (){
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context)=>SecurityHome()
+              ));
+            },
             ),
             ListTile(
             leading: Icon(Icons.timelapse),
             title: Text('InTime'),
-            onTap: (){
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context)=>SecurityInTime()
-              ));
-            },
+            onTap: (){},
+            selected: true,
           ),
           ListTile(
             leading: Icon(Icons.exit_to_app),
@@ -189,7 +151,7 @@ Future<Null> _refresh()async{
                 children: <Widget>[
                   Container(
                     margin: EdgeInsets.only(left: 20.0,bottom: 20.0,top:10.0),
-                  child:Text('OTP: ',textAlign: TextAlign.left,
+                  child:Text('RECORD NO: ',textAlign: TextAlign.left,
                   style:TextStyle(fontWeight: FontWeight.w700,fontSize: 30.0)
                     )
                   ),
@@ -197,16 +159,16 @@ Future<Null> _refresh()async{
                   padding: EdgeInsets.only(left:20.0,right:20.0),
                   margin: EdgeInsets.only(bottom: 8.0),
                   child:TextFormField(
-                    controller: _otpController,
+                    controller: _recordController,
                     maxLength: 5,
                     maxLengthEnforced: true,
                     keyboardType: TextInputType.number,
                     validator: (String value){
                       if(value.isEmpty)
-                      return "Enter OTP";
+                      return "Enter Record No";
                     },
                     decoration: InputDecoration(
-                      labelText: 'Enter OTP of student',
+                      labelText: 'Enter record number',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(5.0)
                       )
@@ -226,7 +188,7 @@ Future<Null> _refresh()async{
                           setState(() {
                             first = false;
                             isLoaded =false;
-                            _getOutpass(_otpController.text);
+                            _getRecord(_recordController.text);
                           });
                          }
                       },
@@ -238,17 +200,17 @@ Future<Null> _refresh()async{
             ),
           ),
           !first?
-          isLoaded ? outpass.isEmpty
+          isLoaded ? record.isEmpty
            ? Container(
              margin: EdgeInsets.only(top: 40.0),
              child:Center(
                child: 
-               Text('Outpass does not exit',
+               Text('Record does not exit',
                style: TextStyle(
                  color: Colors.redAccent,
                  fontSize: 20.0
                ),),),) 
-               : getOutpassCard(outpass,accept,reject)
+               : getCard(record,recordTime)
            :Container(
              margin: EdgeInsets.only(top:40.0),
              child: Center(child: CircularProgressIndicator(),),

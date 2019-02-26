@@ -17,7 +17,7 @@ class _OutpassFormState extends State<OutpassForm> {
   var _formKey =GlobalKey<FormState>();
   List<String> _days = ['1','2','3'];
   String _currentDays = '1';
-  var offset = 3;
+  var offset = 2;
   bool loading = false;
 
   Future<Null> _selectDate(BuildContext context)async{
@@ -25,7 +25,7 @@ class _OutpassFormState extends State<OutpassForm> {
       context: context,
       initialDate:_date,
       firstDate: _date,
-      lastDate: DateTime(_date.year,_date.month,_date.day+offset)
+      lastDate: DateTime(_date.year,_date.month,_date.day+offset,24,60,60)
     );
     if(pickedDate != null){
       setState(() {

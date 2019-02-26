@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:outpass_app/homepage.dart';
 import 'package:outpass_app/main.dart';
 import 'tutor_outpass.dart';
+import 'package:outpass_app/log.dart';
 import 'package:http/http.dart' as http;
 
 class TutorHome extends StatefulWidget {
@@ -86,6 +87,45 @@ class _TutorHomeState extends State<TutorHome> {
     );
   }
 
+  acceptall(){
+    var acceptAll = AlertDialog(
+      title: Text('Accept All'),
+      content: Text('Do you want to accept all?'),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('Yes'),
+          onPressed: (){
+            Navigator.of(context).pop();
+            SharedPreferences.getInstance().then((prefs){
+              http.put(
+              Uri(scheme: 'http',host: host,port: port,path: tutorOutpass),
+              headers: {'Authorization': "Token ${prefs.getString('token')}"},
+              body: jsonEncode({'task':'acceptall'})
+              ).then((response){
+              if(response.statusCode == 200){
+              _refresh();
+              }
+              });
+            });
+          },
+        ),
+        FlatButton(
+          child: Text('No'),
+          onPressed: (){
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context){
+        return acceptAll;
+      }
+    );
+  }
+
 showLogout(){
   var logoutDialog =AlertDialog(
     title: Text('Logout'),
@@ -152,6 +192,14 @@ Future<Null> _refresh()async{
         backgroundColor: Colors.deepPurpleAccent,
         centerTitle: true,
         title: Text('Tutor Home'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('ACCEPT ALL',style: TextStyle(color: Colors.white),),
+            onPressed: (){
+              acceptall();
+            },
+          )
+        ],
       ),
       drawer: Drawer(
         child: Column(
@@ -164,7 +212,20 @@ Future<Null> _refresh()async{
               ),
             ),
             ListTile(
-              title: Text('Logout'),
+              title: Text('HOME'),
+              leading: Icon(Icons.home),
+              selected: true,
+              onTap: (){},
+            ),
+            ListTile(
+              title: Text('LOGS'),
+              leading: Icon(Icons.insert_drive_file),
+              onTap: (){
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>LogView(false)));
+              },
+            ),
+            ListTile(
+              title: Text('LOGOUT'),
               leading: Icon(Icons.exit_to_app),
               onTap: (){
                 showLogout();
@@ -192,7 +253,7 @@ Future<Null> _refresh()async{
           children: <Widget>[
             Container(
               margin: EdgeInsets.only(top:200.0),
-              child: Center(child:CircularProgressIndicator()) 
+              child: Center(child:CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.deepPurpleAccent),)) 
             )
           ],
         )),

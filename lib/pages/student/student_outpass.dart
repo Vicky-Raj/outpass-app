@@ -191,10 +191,30 @@ Widget getOutpassCard(var outpass,Function showCancel,Function getOtp){
                   fontSize: 30.0, fontWeight: FontWeight.w900,color: Colors.blueAccent[700]),
                 ),
                 ):Container(),
+                outpass['record_no'] != null ?
+                Container(
+                  margin: EdgeInsets.only(top: 1.0,bottom: 10.0),
+                  padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                  child:Text(
+                        "Record-Number: ",
+                        style: TextStyle(
+                            fontSize: 18.0, fontWeight: FontWeight.w700),
+                      ),
+                ):Container(),
+                outpass['record_no'] != null ?
+                Container(
+                  margin: EdgeInsets.only(top: 1.0,bottom: 5.0),
+                  padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                  child: Text(
+                  outpass['record_no'].toString(),
+                  style: TextStyle(
+                  fontSize: 30.0, fontWeight: FontWeight.w900,color: Colors.blueAccent[700]),
+                ),
+                ):Container(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  outpass['tutor'] == 'accepted' && outpass['warden'] == 'accepted' && outpass['otp'] == null && !(outpass['security'] == 'accepted')?
+                  outpass['tutor'] == 'accepted' && outpass['warden'] == 'accepted' && outpass['otp'] == null && !outpass['expired']?
                   Container(
                     margin: EdgeInsets.only(right: 10.0,bottom: 5.0),
                     child: RaisedButton(

@@ -15,6 +15,7 @@ class StudentHome extends StatefulWidget {
 class _StudentHomeState extends State<StudentHome> {
   var outpass;
   bool isLoaded = false;
+  var _scaffoldState = GlobalKey<ScaffoldState>();
 
   showCancel(String pk) {
     var cancelDialog = AlertDialog(
@@ -143,6 +144,7 @@ class _StudentHomeState extends State<StudentHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldState,
       appBar: AppBar(
         backgroundColor: Colors.deepPurpleAccent,
         centerTitle: true,
@@ -199,6 +201,9 @@ class _StudentHomeState extends State<StudentHome> {
               onPressed: ()async{
                 var result = await Navigator.of(context).push(MaterialPageRoute(builder: (context)=>OutpassForm()));
                 if(result ?? false){
+                  _scaffoldState.currentState.showSnackBar(SnackBar(
+                    content: Text('Outpass Requested',textAlign: TextAlign.center,),
+                  ));
                   setState(() {
                     isLoaded =false;
                     _getOutpass();
