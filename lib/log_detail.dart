@@ -27,6 +27,7 @@ class _LogDetailState extends State<LogDetail> {
       ).then((response){
         if(response.statusCode == 200){
           setState(() {
+            print(jsonDecode(response.body)['record']);
             record = jsonDecode(response.body)['record'];
             isLoaded = true;
           });
@@ -69,8 +70,20 @@ class _LogDetailState extends State<LogDetail> {
                 elevation: 10.0,
                 child:Column(
                 children: <Widget>[
+                  record['emergency']?
+                  Container(
+                    margin: EdgeInsets.only(top:15.0),
+                    child: Text(
+                      'EMERGENCY OUTPASS',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.redAccent
+                      ),
+                    ),
+                  ):Container(),
                 Container(
-                  margin: EdgeInsets.only(top: 25.0),
+                  margin: EdgeInsets.only(top: 15.0),
                   padding: EdgeInsets.only(left: 10.0, right: 10.0),
                   child: Row(
                     children: <Widget>[

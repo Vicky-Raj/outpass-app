@@ -5,6 +5,7 @@ import 'package:outpass_app/log.dart';
 import 'package:outpass_app/homepage.dart';
 import 'package:outpass_app/main.dart';
 import 'warden_outpass.dart';
+import 'emergency_form.dart';
 import 'package:http/http.dart' as http;
 
 class WardenHome extends StatefulWidget {
@@ -175,6 +176,17 @@ Future<Null> _refresh()async{
               leading: Icon(Icons.insert_drive_file),
               onTap: (){
                 Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>LogView(true)));
+              },
+            ),
+              ListTile(
+              title: Text('EMERGENCY'),
+              leading: Icon(Icons.local_hospital),
+              onTap: (){
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context)=>EmergencyForm()
+                  )
+                );
               },
             ),
             ListTile(

@@ -6,7 +6,7 @@ import 'package:outpass_app/pages/security/security_home.dart';
 import 'homepage.dart';
 import 'login.dart';
 
-var host = '192.168.43.158';
+var host = '10.0.2.2';
 var port = 8000;
 var login = 'api/login/';
 var studentOutpass = 'api/student/outpass/';
@@ -14,6 +14,7 @@ var tutorOutpass = 'api/tutor/outpass/';
 var wardenOutpass = 'api/warden/outpass/';
 var securityOutpass = 'api/security/outpass/';
 var securityRecord = 'api/security/record/';
+var emergencyOutpass = 'api/warden/emergency/';
 
 void main(List<String> args) {
   runApp(MaterialApp(

@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'homepage.dart';
 import 'dart:convert';
 import 'log_detail.dart';
+import 'package:outpass_app/pages/warden/emergency_form.dart';
 import 'package:outpass_app/pages/warden/warden_home.dart';
 import 'package:http/http.dart' as http;
 import 'main.dart';
@@ -46,7 +47,7 @@ class _LogViewState extends State<LogView> {
 
   List<Widget> _getTile(List records){
     return records.map((record) => ListTile(
-          leading: Icon(Icons.insert_drive_file),
+          leading: record['emergency']?Icon(Icons.insert_drive_file,color: Colors.redAccent,):Icon(Icons.insert_drive_file,),
           title: Text(record['name'].toString()),
           subtitle: Text('Departure: ${record['dep-date']}'),
           onTap: (){
@@ -177,6 +178,18 @@ class _LogViewState extends State<LogView> {
               selected: true,
               onTap: (){},
             ),
+            role == 'warden'?
+              ListTile(
+              title: Text('EMERGENCY'),
+              leading: Icon(Icons.local_hospital),
+              onTap: (){
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context)=>EmergencyForm()
+                  )
+                );
+              },
+            ):Container(),
             ListTile(
               title: Text('LOGOUT'),
               leading: Icon(Icons.exit_to_app),

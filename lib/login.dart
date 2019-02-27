@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:convert';
 import 'main.dart';
 import 'dart:async';
@@ -56,7 +57,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 getAndSetToken(String email, String pass){
-  http.post(uri,body: {'email':email,'password':pass,'role':role}).then((response)async{
+  var messaging =FirebaseMessaging();
+  messaging.getToken().then((deviceId){
+  http.post(uri,body: {'email':email,'password':pass,'role':role,'deviceId':deviceId}).then((response)async{
     if(response.statusCode == 200){
       var prefs = await SharedPreferences.getInstance();
       await prefs.setString('token',jsonDecode(response.body)['token']);
@@ -73,6 +76,7 @@ getAndSetToken(String email, String pass){
         isLoading = false;
       });
     }
+  });
   });
 }
 
